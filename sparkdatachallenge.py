@@ -25,21 +25,24 @@ import numpy as np
 import pandas as pd
 
 
-def check_input(inA, inB, scale=1_000_000) -> bool:
-    """Method to check input.
+def check_input(inA: np.array, inB: np.array, scale: int = 1_000_000) -> bool:
+    """Check input method.
 
     Parameters
     ----------
-    inA : np,array
-        input array integer part
+    inA : np.array
+        array containing the integer part
     inB : np.array
-        input array fractional part
+        array containing the decimal part
+    scale : int, optional
+        scale factor for the decimal parts, by default 1_000_000
 
     Returns
     -------
     bool
-        True or False if input is valid.
+        Check if input is valid.
     """
+
     checkA = (
         (inA >= 0).all() and (inA <= 1000).all() and not np.isnan(inA).any() and not inA.size == 0
     )
@@ -127,6 +130,10 @@ def solution_brute1(A: np.array, B: np.array, verbose: bool = True) -> int:
     """Brute force method one - using upper triangular matrices. Expected
     to fail with large arrays and it does due to memory issues !!!!
 
+    IMPORTANT:
+    ==========
+    FAILS FOR LARGE ARRAYS!!!!
+
     Parameters
     ----------
     A : np.array
@@ -141,23 +148,55 @@ def solution_brute1(A: np.array, B: np.array, verbose: bool = True) -> int:
     int
         number of multiplicative pairs
     """
+    # generate the decimal numbers
     C: np.array = A + B / 1_000_000
 
+    # generate the upper triangular arrays
     _mul: np.array = generate_mul_triu(C)
     _add: np.array = generate_add_triu(C)
     _test: np.array = _mul - _add
 
+    # if verbose print mul pairs
     if verbose:
         print(pairs(_test))
 
+    # test where pairs are mul
     n_mul_pairs: int = np.where(_test[np.triu_indices_from(_test, 1)] >= 0)[0].shape[0]
+
+    # if large number return threshold
     if n_mul_pairs > 1_000_000_000:
         return 1_000_000_000
+
     return n_mul_pairs
 
 
-def solution_brute2(A, B, verbose=True, threshold=1_000_000_000, scale=1_000_000):
+def solution_brute2(
+    A: np.array,
+    B: np.array,
+    verbose: bool = True,
+    threshold: int = 1_000_000_000,
+    scale: int = 1_000_000,
+) -> int:
+    """Brute force method based on double for-loop.add()
 
+    Parameters
+    ----------
+    A : np.array
+        integer part of the decimal numbers
+    B : np.array
+        decimal part of the decimal numbers
+    verbose : bool, optional
+        Print the mul pairs, by default True
+    threshold : int, optional
+        Threshold for breaking the for looop, by default 1_000_000_000
+    scale : int, optional
+        scale factor for the decimals, by default 1_000_000
+
+    Returns
+    -------
+    int
+        returns the number of mul pairs of lower than threshold otherwise return threshold value
+    """
     # generate the floats and sort
     C: np.array = np.sort(A + B / scale)
 
@@ -186,7 +225,27 @@ def solution_brute2(A, B, verbose=True, threshold=1_000_000_000, scale=1_000_000
     return counter
 
 
-def solution_math(A, B, threshold=1_000_000_000, scale=1_000_000):
+def solution_math(
+    A: np.array, B: np.array, threshold: int = 1_000_000_000, scale: int = 1_000_000
+) -> int:
+    """Math based method. See tutorial/examples in docs for more details.add()
+
+    Parameters
+    ----------
+    A : np.array
+        integer part of the decimal numbers
+    B : np.array
+        decimal part of the decimal numbers
+    threshold : int, optional
+        threshold value for the number of pairs, by default 1_000_000_000
+    scale : int, optional
+        scale factor for the decimals, by default 1_000_000
+
+    Returns
+    -------
+    int
+        returns number of mul pairs or the threshold value
+    """
     C: np.array = np.sort(A + B / scale)
 
     # init count
@@ -206,7 +265,7 @@ def solution_math(A, B, threshold=1_000_000_000, scale=1_000_000):
 
     #  1 < x < 2 => y >= x / (x-1)
     # inequality is always satisfied for x, y >= 2
-    # for 1<x<2  we need y>=2
+    # for 1<x<2  we need y>=x/(x-1)
     for el in C[(1 < C) & (C < 2)]:
         f = el / (el - 1)
         count += C[C >= f].shape[0]
@@ -214,30 +273,12 @@ def solution_math(A, B, threshold=1_000_000_000, scale=1_000_000):
     if count > threshold:
         return threshold
 
-    # combine case 4 and 5 x>=2 and y>=2
+    # case x>=2 and y>=2
     k = C[C >= 2.0].shape[0]
 
     count += k * (k - 1) / 2
 
     return int(count)
 
-
-def main(A: np.array, B: np.array):
-
-    pass
-
-
-def hello(who="world"):
-    """'Hello world' method.
-
-    :param str who: whom to say hello to
-    :returns: a string
-    """
-    result = "Hello " + who
-    return result
-
-
-if __name__ == "__main__":
-    main()
 
 # eof
