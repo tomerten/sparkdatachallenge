@@ -8,6 +8,7 @@ Welcome to sparkdatachallenge's documentation!
 
    readme
    api
+   notebook/Tutorial
 
 ##################
 Indices and tables

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sparkdatachallenge"
-version = "0.0.0"
+version = "0.1.0"
 description = "<Enter a one-sentence description of this project here.>"
 authors = ["Tom Mertens <your.email@whatev.er>"]
 license = "MIT"
@@ -13,10 +13,19 @@ homepage = "https://github.com/tomerten/sparkdatachallenge"
 keywords = ['packaging', 'poetry']
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "^3.8"
+pandas = "^1.2.4"
+numpy = "^1.20.3"
+isort = "^5.8.0"
+pylint = "^2.8.2"
+ipykernel = "^5.5.5"
+sympy = "^1.8"
+matplotlib = "^3.4.2"
+nbsphinx = "^0.8.5"
 
 [tool.poetry.dev-dependencies]
 pytest = "^4.4.2"
+black = "^21.5b1"
 
 [tool.poetry.scripts]
 
