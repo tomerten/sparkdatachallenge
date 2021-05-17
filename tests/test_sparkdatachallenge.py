@@ -39,6 +39,10 @@ simple = [
     (np.array([1, 3] * int(10 ** 5 / 2)), np.array([500_000, 0] * int(10 ** 5 / 2)), 1000000000),
 ]
 
+comp = [
+    (np.array([0, 1, 3]), np.array([0, 400_000, 5_000_000]), 1),
+]
+
 
 @pytest.mark.parametrize("ina, inb, res", incheck_pass)
 def test_input_check_pass(ina, inb, res):
@@ -56,6 +60,13 @@ def test_simple(ina, inb, res):
     # assert res == sparkdatachallenge.solution_brute1(ina, inb, verbose=False) - fails on memory allocation
     # assert res == sparkdatachallenge.solution_brute2(ina, inb, verbose=False) - takes a bit
     assert res == sparkdatachallenge.solution_math(ina, inb)
+
+
+@pytest.mark.parametrize("ina, inb, res", comp)
+def test_simple(ina, inb, res):
+    # assert res == sparkdatachallenge.solution_brute1(ina, inb, verbose=False) - fails on memory allocation
+    # assert res == sparkdatachallenge.solution_brute2(ina, inb, verbose=False) - takes a bit
+    assert res == sparkdatachallenge.solution_math2(ina, inb)
 
 
 # ==============================================================================

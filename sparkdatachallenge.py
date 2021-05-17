@@ -17,7 +17,7 @@ A pair of indices (P, Q) is multiplicative if 0 â‰¤ P < Q < N and C[P] * C[Q] â‰
 The package contains several methods to find the number of multiplicative pairs in C.
 
 """
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 from typing import List, Tuple, Union
 
@@ -266,8 +266,11 @@ def solution_math(
     #  1 < x < 2 => y >= x / (x-1)
     # inequality is always satisfied for x, y >= 2
     # for 1<x<2  we need y>=x/(x-1)
+
     for el in C[(1 < C) & (C < 2)]:
+        # I ASSUME HERE THE A AND B INDICES ARE THE SAME AS IN THE ORDERED C ARRAY
         f = el / (el - 1)
+
         count += C[C >= f].shape[0]
 
     if count > threshold:
@@ -280,5 +283,117 @@ def solution_math(
 
     return int(count)
 
+
+def compare(A: np.array, B: np.array, P: int, Q: int, scale: int = 1_000_000) -> bool:
+    """Comparing composed numbers using there original integer and decimal
+    values as integers.
+
+    Parameters
+    ----------
+    A : np.array
+        integer parts
+    B : np.array
+        decimal parts
+    P : int
+        index
+    Q : int
+        index
+    scale : int, optional
+        scale for decimals, by default 1_000_000
+
+    Returns
+    -------
+    bool
+        return true if multiplicative
+    """
+    # use associativity on integer and decimal part
+    prodi = A[P] * A[Q] + (A[P] * B[Q]) // scale + (A[Q] * B[P]) // scale
+    prodd = ((A[P] * B[Q]) % scale) * scale + ((A[Q] * B[P]) % scale) * scale + (B[P] * B[Q])
+    print(prodi, prodd)
+
+    sumi = A[P] + A[Q] + (B[P] + B[Q]) // scale
+    sumd = ((B[P] + B[Q]) % scale) * scale
+
+    print(sumi, sumd)
+
+    if prodi > sumi:
+        return True
+    elif prodi == sumi:
+        if prodd >= sumd:
+            return True
+    return False
+
+
+def solution_math2(
+    A: np.array, B: np.array, threshold: int = 1_000_000_000, scale: int = 1_000_000
+) -> int:
+    """Math based method. See tutorial/examples in docs for more details.add()
+
+    Parameters
+    ----------
+    A : np.array
+        integer part of the decimal numbers
+    B : np.array
+        decimal part of the decimal numbers
+    threshold : int, optional
+        threshold value for the number of pairs, by default 1_000_000_000
+    scale : int, optional
+        scale factor for the decimals, by default 1_000_000
+
+    Returns
+    -------
+    int
+        returns number of mul pairs or the threshold value
+    """
+    C: np.array = np.sort(A + B / scale)
+
+    # init count
+    count = 0
+    # x == 0 => y ==0 => count  C[i] = 0.0
+    nzero = C[C == 0.0].shape[0]
+
+    # calculate the number of zero - zero pairs and update count
+    if nzero > 1:
+        count = nzero * (nzero - 1) / 2
+
+    if count > threshold:
+        return threshold
+    # 0 < x < 1 => no solution
+
+    # x==1 => no solution
+
+    #  1 < x < 2 => y >= x / (x-1)
+    # inequality is always satisfied for x, y >= 2
+    # for 1<x<2  we need y>=x/(x-1)
+    # get indices of A == 1
+    one_idx = np.argwhere(divmod(C, 1)[0].astype(int) == 1)[:, 0]
+
+    for idx in one_idx:
+        # A == 1
+        # A.B / (A.B - 1) = 1.B / (1.B - 1) = 1.B / 0.B = 1 / 0.B + 1
+        f = scale / B[idx] * scale  # max accuracy in B
+
+        fscaled = int(f) + scale
+        fscaled += 0 if np.ceil(f) else 1  # taking into account the last digit
+
+        count += C[scale * C >= fscaled].shape[0]
+
+    if count > threshold:
+        return threshold
+
+    # case x>=2 and y>=2
+    k = C[C >= 2.0].shape[0]
+
+    count += k * (k - 1) / 2
+
+    return int(count)
+
+
+if __name__ == "__main__":
+    tup = (np.array([0, 1, 3]), np.array([0, 400_000, 500_000]), 1)
+    print(solution_brute1(tup[0], tup[1], verbose=True))
+    print(solution_brute2(tup[0], tup[1], verbose=True))
+    print(solution_math(tup[0], tup[1]))
+    print(solution_math2(tup[0], tup[1]))
 
 # eof
